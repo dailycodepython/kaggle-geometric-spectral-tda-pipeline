@@ -1,5 +1,31 @@
-# kaggle-geometric-spectral-tda-pipeline
+
 Math over brute compute: A modular, leak-free TDA engine for tabular ML combining Forman-Ricci Curvature, JAX Persistent Laplacians, 2D Filtration, Information Mapper &amp; 1D Optimal Transport.
+
+## 🏗️ Pipeline Architecture
+
+```mermaid
+flowchart TD
+    A["Raw Tabular Data (Train + Test)"] --> B["Rank-Gaussian Normalization & cKDTree k-NN Manifold"]
+    
+    subgraph Unsupervised ["Unsupervised Manifold Geometry (Full X)"]
+        B --> C["1. Forman-Ricci Curvature<br/>F(u,v) = 4 - deg(u) - deg(v) + 3|Δ|"]
+        B --> D["2. JAX Persistent Laplacians<br/>Fiedler Gap Δλ₁ = λ₁(s₂) - λ₁(s₁)"]
+        B --> E["3. 2D Filtration & Entropy<br/>Radius × Density + Shannon H(i)"]
+    end
+
+    subgraph SupervisedOOF ["Strict Out-of-Fold Topology (Inside StratifiedKFold)"]
+        B -.-> F["4. Information-Theoretic Mapper<br/>Reeb Graph over Entropy Lens H(x)"]
+        B -.-> G["5. Topological Optimal Transport<br/>1D Wasserstein W₁ to Class Prototypes"]
+    end
+
+    C & D & E & F & G --> H["Concatenated Feature Matrix (Raw + 15 TDA Invariants)"]
+    H --> I["LightGBM / GBDT Ensemble & Manifold Diagnostics"]
+
+    style Unsupervised fill:#161b22,stroke:#30363d,color:#c9d1d9
+    style SupervisedOOF fill:#161b22,stroke:#58a6ff,color:#c9d1d9
+    style I fill:#238636,stroke:#2ea043,color:#ffffff
+```
+
 # 🌌 Multi-Scale Geometric & Spectral TDA Engine (JAX + LightGBM)
 
 > **Math over brute compute.** A modular, leak-free Topological Data Analysis (TDA) feature engineering pipeline for tabular Kaggle competitions. Combines discrete Ricci curvature, JAX-accelerated Persistent Laplacians, 2D density-radius filtration, Information-Theoretic Mapper, and 1D Optimal Transport.
@@ -35,7 +61,7 @@ $$\mathcal{N}_{\text{robust}}(i) = \lbrace j \in \mathcal{N}_k(i) \;\mid\; \rho_
 Additionally computes row-wise Shannon Entropy $H(i) = -\sum_{j=1}^k p_{ij} \ln p_{ij}$ over normalized neighborhood distances $p_{ij} = r_{ij} / \sum_m r_{im}$.
 
 ### 4. Out-of-Fold Information-Theoretic Mapper (Reeb Graph)
-Uses local Shannon entropy $H(x)$ as a topological lens function $f: X \to \mathbb{R}$ to construct an overlapping interval cover $\{U_\alpha\}$. Inside each cross-validation fold, Bayesian-smoothed target rates are projected onto validation and test manifolds via Gaussian kernel weights without target leakage.
+Uses local Shannon entropy $H(x)$ as a topological lens function $f: X \to \mathbb{R}$ to construct an overlapping interval cover $\lbrace U_\alpha \rbrace$. Inside each cross-validation fold, Bayesian-smoothed target rates are projected onto validation and test manifolds via Gaussian kernel weights without target leakage.
 
 ### 5. Topological Optimal Transport (1D Wasserstein Signatures)
 Represents each sample's local persistence profile as its sorted $k$-NN distance vector $\mathbf{d}_i \in \mathbb{R}^k$. Computes exact 1D Wasserstein distances $W_1(\mathbf{d}_i, \mathbf{\mu}_c)$ to class-conditional median persistence prototypes $\mathbf{\mu}_0, \mathbf{\mu}_1$ strictly inside CV folds.
