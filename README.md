@@ -28,7 +28,8 @@ This captures local manifold stiffness and stretching invisible to standard homo
 ### 3. Two-Parameter Filtration (Radius $\times$ Density) & Local Entropy
 To suppress synthetic tabular noise and outliers, neighborhood edges are filtered jointly by Euclidean radius $r_{ij}$ and local density $\rho_i = \left(\frac{1}{k}\sum_{j=1}^k r_{ij}\right)^{-1}$:
 
-$$\mathcal{N}_{\text{robust}}(i)=\left\{ j \in \mathcal{N}_k(i) \;\mid\; \rho_j \geq \alpha \cdot \rho_i \right\}$$
+$$\mathcal{N}_{\text{robust}}(i) = \lbrace j \in \mathcal{N}_k(i) \;\mid\; \rho_j \geq \alpha \cdot \rho_i \rbrace$$
+
 
 
 Additionally computes row-wise Shannon Entropy $H(i) = -\sum_{j=1}^k p_{ij} \ln p_{ij}$ over normalized neighborhood distances $p_{ij} = r_{ij} / \sum_m r_{im}$.
